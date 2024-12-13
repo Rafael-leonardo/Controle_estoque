@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block conteudo %}
+{% load static %}
+
+      <form action="#" method="POST">
+        {% csrf_token %}
+      </form>
+      <p>
+
+      </p>
+      <div class="container">
+        <table class="table table-bordered table-striped">
+          <h3 style="text-align: center;" class="container">Ultimos produtos adicionados:</h3> 
+          <tr>
+                <th>id</th>
+                <th>nome</th>
+                <th>categoria</th>
+                <th>quantidade</th>
+                <th>preco (R$)</th>
+            </tr>
+
+        </table>
+        <script src="{% static 'js/index.js' %}" defer></script>
+    </div>
+
+{% endblock %}
