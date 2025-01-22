@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Construção de caminhos dentro do projeto como: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Veja https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # AVISO DE SEGURANÇA: mantenha a chave secreta usada em produção em segredo!
-SECRET_KEY = 'django-insecure-u^3gi@j=#3t$119d+w^w0nd7nz7ic+a_4z@05yrwph+rthyd%n'
+SECRET_KEY = config('SECRET_KEY', default='your-default-secret-key')
 
 # AVISO DE SEGURANÇA: não execute com debug ativado em produção!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ["momentumcafeestoquecontrol.com"]
+ALLOWED_HOSTS = ['.railway.app', 'localhost']
 
 
 # Definição de aplicativos
@@ -120,7 +121,8 @@ USE_TZ = True
 # Arquivos estáticos (CSS, JavaScript, Imagens)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Tipo de campo de chave primária padrão
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
