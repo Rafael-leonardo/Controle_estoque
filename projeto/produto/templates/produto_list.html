@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% block conteudo %}
+
+<div class="sidebar" style="background-color: rgb(13, 12, 12);">
+<div class="container d-flex justify-content-between align-items-center">
+    <h2>Todos os produtos:</h2>
+    <span class="pull-right">
+        <a href="{% url 'produto:produto_add' %}">
+            {% if user.is_authenticated %}
+            <button type="button" class="btn btn-primary">
+                <span class="fa fa-plus"></span> Adicionar
+            </button>
+            {% endif %}
+        </a>
+    </span>
+</div>
+<div class="container" style="background-color: rgb(13, 12, 12);">
+    {% if object_list %}
+    <table class="table table-striped">
+        <thead style="color: aliceblue;">
+            <tr>
+                <th>ncm</th>
+                <th>produto</th>
+                <th>preço</th>
+                <th class="text-center">estoque</th>
+                <th class="text-center">estoque mínimo</th>
+                <th class="text-center">fornecedor</th>
+                {% if user.is_authenticated %}
+                    <th class="text-center">ações</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+            <tr>
+                <td style="color: aliceblue;">{{ object.ncm }}</td>
+                <td style="color: aliceblue;"><a href="{{ object.get_absolute_url }}">{{ object.produto }}</a></td>
+                <td style="color: aliceblue;">R$ <span>{{ object.preco }}</span></td>
+                <td style="color: aliceblue;" class="text-center">{{ object.estoque }}</td>
+                <td style="color: aliceblue;" class="text-center">{{ object.estoque_minimo }}</td>
+                <td style="color: aliceblue;" class="text-center">{{ object.fornecedor.nome }}</td>
+                {% if user.is_authenticated %}
+                <td style="text-align: center; color: aquamarine;">
+                    <a href="{% url 'produto:produto_delete' object.id %}" class="btn btn-danger">Excluir</a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="alert alert-warning" style="display: none;" id="message">Sem itens na lista</p>
+    
+    {% endif %}
+</div>
+</div>
+
+{% endblock %}
+
+{% block css %}
+<style>
+    .sidebar {
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock css %}

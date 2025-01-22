@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block conteudo %}
+{% load static %}
+
+<div class="container sidebar" style="background-color: rgb(13, 12, 12);">
+    <h3 style="text-align: center;">Últimas Vendas:</h3>
+    <table class="table table-striped" style="text-align: center;">
+        <thead style="color: antiquewhite;">
+            <tr>
+                <th>Data e Hora</th>
+                <th>Forma de Pagamento</th>
+                <th>Total (R$)</th>
+                <th>Funcionario</th>
+                {% if user.is_authenticated %}
+                    <th>acoes</th>
+                {% endif %}
+            </tr>
+        </thead>
+            <tbody>
+                {% for venda in vendas %}
+                    <tr>
+                        <td style="color: antiquewhite;">{{ venda.data_venda|date:"d/m/Y H:i" }}</td>
+                        <td style="color: antiquewhite;">{{ venda.forma_pagamento }}</td>
+                        <td style="color: antiquewhite;">{{ venda.total_calculado|floatformat:2 }}</td>
+                        <td style="color: antiquewhite;">{{ venda.user.nome }}</td>
+                        {% if user.is_authenticated %}  
+                        <td>
+                            <a href="{% url 'vendas:gerar_recibo' venda_id=venda.id %}">
+                                <button class="btn btn-primary">Recibo</button>
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="{% static 'js/index.js' %}" defer></script>
+{% endblock %}
+
+{% block css %}
+<style>
+    .sidebar {
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock css %}
