@@ -2,6 +2,16 @@
 
 Este é um sistema desenvolvido em Django para gerenciar vendas, controle de estoque, relatórios financeiros e cadastro de usuários. O projeto oferece funcionalidades como gestão de produtos, fornecedores, clientes e relatórios detalhados de vendas.
 
+## Download do projeto .zip
+
+1. ** Faça o download do arquivo run_django.zip
+   - descompacte o arquivo e de dois cliques sobre ele
+   - ira abrir um janela do cmd/prompt
+   - Abra em seu navegador na porta 127.0.0.1:8000
+2. ** Crie um Usuario **
+3. ** Crie um Fornecedor **
+4.  ** adicione produtos e faça uma entrada no estoque
+
 ## Recursos do Projeto
 
 1. **Autenticação de Usuários**:
