@@ -1,28 +1,67 @@
 {% extends 'layout.html' %}
-
 {% load widget_tweaks %}
 
 {% block conteudo %}
-<div class="container sidebar col-md-6" style="background-color: rgb(13, 12, 12);">
-    <h2>Adicionar Produto:</h2>
+<div class="container sidebar col-md-6">
+    <h2 class="text-light">Adicionar Produto:</h2>
     <form method="post" novalidate>
         {% csrf_token %}
+        {# Renderiza os demais campos do formulário #}
         {% for field in form.visible_fields %}
             <div class="row form-group{% if field.errors %} has-error {% endif %}">
-                <label for="{{ field.id_for_label }}">
+                <label for="{{ field.id_for_label }}" class="text-light">
                     {% if field.field.required %}
                         <span class="required">{{ field.label }} </span>
                     {% else %}
                         {{ field.label }}
                     {% endif %}
                 </label>
-                {% render_field field class="form-control" %}
-            {% for error in field.errors %}
-                <span class="text-muted">{{ error }}</span>
-            {% endfor %}
+                {% render_field field class="form-control bg-dark text-light" %}
+                {% for error in field.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
             </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">Cadastrar</button>
+
+        <button type="button" class="btn btn-secondary mt-3" data-bs-toggle="modal" data-bs-target="#ingredientesModal">
+            Selecionar Ingredientes
+        </button>
+
+        <div class="modal fade" id="ingredientesModal" tabindex="-1" aria-labelledby="ingredientesModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark text-light">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title" id="ingredientesModalLabel">Escolha os Ingredientes</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% for ingrediente in ingredientes %}
+                        <div class="row align-items-center mb-2">
+                            <div class="col-1">
+                                <input class="form-check-input bg-dark border-secondary ingrediente-checkbox" type="checkbox" value="{{ ingrediente.id }}" id="ingrediente_{{ ingrediente.id }}">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-check-label text-light" for="ingrediente_{{ ingrediente.id }}">
+                                    {{ ingrediente.nome }}
+                                </label>
+                            </div>
+                            <div class="col-5">
+                                <input type="number" class="form-control quantidade-input" placeholder="Quantidade" min="0" step="any" disabled data-id="{{ ingrediente.id }}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-primary" onclick="selecionarIngredientes()">Salvar Seleção</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" name="ingredientes_data" id="ingredientes_data">
+
+        <button type="submit" class="btn btn-primary mt-3">Cadastrar</button>
     </form>
 </div>
 {% endblock conteudo %}
@@ -31,10 +70,10 @@
 <style>
     .sidebar {
         margin-top: 10px;
-        border: 1px solid #ddd;
+        border: 1px solid #444;
         padding: 20px;
         border-radius: 8px;
-        background-color: #f9f9f9;
+        background-color: rgb(13, 12, 12);
     }
     span.required:after {
         content: "*";
@@ -45,7 +84,38 @@
 
 {% block js %}
 <script>
-    $('#id_importado').removeClass('form-control').addClass('form-check-input');
+    document.querySelectorAll('.ingrediente-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const id = this.value;
+            const quantityInput = document.querySelector('.quantidade-input[data-id="' + id + '"]');
+            if (this.checked) {
+                quantityInput.disabled = false;
+            } else {
+                quantityInput.disabled = true;
+                quantityInput.value = '';
+            }
+        });
+    });
+
+    function selecionarIngredientes() {
+        let selectedIngredients = [];
+        document.querySelectorAll('.ingrediente-checkbox:checked').forEach(function(checkbox) {
+            const id = checkbox.value;
+            const quantityInput = document.querySelector('.quantidade-input[data-id="' + id + '"]');
+            let quantity = quantityInput.value;
+            if (quantity === "" || parseFloat(quantity) <= 0) {
+                quantity = "0";
+            }
+            selectedIngredients.push({
+                id: id,
+                quantidade: quantity
+            });
+        });
+        document.getElementById("ingredientes_data").value = JSON.stringify(selectedIngredients);
+
+        let modalElement = document.getElementById('ingredientesModal');
+        let modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+    }
 </script>
 {% endblock js %}
-

@@ -8,6 +8,5 @@ class ProdutoAdmin(admin.ModelAdmin):
         'ncm',
         'preco',
         'estoque',
-        'estoque_minimo',
     )
     search_fields= ('produto',)

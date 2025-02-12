@@ -30,15 +30,15 @@ def index(request):
 
 
 def list_vendas(request):
-    vendas = Venda.objects.all().order_by('-id')
-
+    vendas = Venda.objects.prefetch_related('itens').order_by('-id')
+    
     for venda in vendas:
-        venda.total_calculado = 0 
-        for item in venda.itens.all():
-            item.subtotal = item.quantidade * item.preco_unitario
-            venda.total_calculado += item.subtotal
-
+        venda.total_calculado = sum(
+            item.quantidade * item.preco_unitario for item in venda.itens.all()
+        )
+    
     return render(request, 'list_vendas.html', {'vendas': vendas})
+
 
 @login_required
 def financas(request):

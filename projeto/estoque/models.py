@@ -5,9 +5,8 @@ from projeto.core.models import TimeStampedModel
 from projeto.produto.models import Produto
 from .managers import EstoqueEntradaManager, EstoqueSaidaManager
 from django.conf import settings
-from django.db.models import Sum
 
-MOVIMENTO =(
+MOVIMENTO = (
     ('e', 'entrada'),
     ('s', 'saida'),
 )
@@ -21,26 +20,42 @@ class Estoque(TimeStampedModel):
         ordering = ('-created',)
 
     def __str__(self):
-        return f"{self.created.strftime('%D / %M / %Y')} - {self.funcionario.nome}"
+        return f"{self.created.strftime('%d/%m/%Y')} - {self.funcionario.username}"
 
     def nf_formated(self):
         return str(self.nf).zfill(3)
-    
 
 class EstoqueItens(models.Model):
     estoque = models.ForeignKey(Estoque, on_delete=models.CASCADE, related_name='estoques')
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
-    quantidade = models.PositiveBigIntegerField()
-    saldo = models.PositiveBigIntegerField(default=0)
-    
-    class meta:
-        ordering = ('pk', )
+    quantidade = models.DecimalField(max_digits=10, decimal_places=2)
+    saldo = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+    class Meta:
+        ordering = ('pk',)
 
     def __str__(self):
-        return '{} - {} - {}'.format(self.pk, self.estoque.pk, self.produto)
+        return f'{self.produto.produto} - Quantidade: {self.quantidade} - Saldo: {self.saldo}'
+
+    def atualizar_estoque(self):
+        if self.saldo >= self.quantidade:
+            self.saldo -= self.quantidade
+            self.save()
+        else:
+            raise ValueError(f"Estoque insuficiente para o produto {self.produto.produto}!")
+
+    def atualizar_estoque_ingredientes(self):
+        for ingrediente in self.produto.ingredientes.all():
+            produto_ingrediente = self.produto.produtoingrediente_set.get(ingrediente=ingrediente)
+            quantidade_necessaria = produto_ingrediente.quantidade * self.quantidade
+
+            if ingrediente.estoque < quantidade_necessaria:
+                raise ValueError(f"Estoque insuficiente para o ingrediente {ingrediente.nome}!")
+            
+            ingrediente.estoque -= quantidade_necessaria
+            ingrediente.save()
 
 class EstoqueEntrada(Estoque):
-
     objects = EstoqueEntradaManager()
 
     class Meta:
@@ -51,11 +66,9 @@ class EstoqueEntrada(Estoque):
     def get_absolute_url(self):
         return reverse_lazy('estoque:estoque_entrada_detail', kwargs={'pk': self.pk})
 
-
 class EstoqueSaida(Estoque):
-   
     objects = EstoqueSaidaManager()
-    
+
     class Meta:
         proxy = True
         verbose_name = 'estoque saída'
