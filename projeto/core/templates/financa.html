@@ -22,117 +22,127 @@
             </div>
         </div>
 
-        <div class="col-md-9 sidebar" style="background-color: rgb(13, 12, 12);">
-            <div id="relatorio-financeiro" class="content-section">
+        <div class="col-md-9" style="justify-content: center; align-items: center; height: 100vh;">
+            <div id="selecao-data" class="sidebar col-md-6" style="max-width: 350px; text-align: center; padding: 15px; background-color: rgb(13, 12, 12); left: 25%">
+                <form method="get" action="{% url 'core:financas' %}">
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <div class="form-group">
+                            <label for="data_inicial">Data Inicial</label>
+                            <input type="date" class="form-control" id="data_inicial" name="data_inicial" value="{{ request.GET.data_inicial }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="data_final">Data Final</label>
+                            <input type="date" class="form-control" id="data_final" name="data_final" value="{{ request.GET.data_final }}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
+                </form>
+            </div>
+            
+
+            <!-- Verificar se o intervalo de datas foi escolhido -->
+            {% if request.GET.data_inicial and request.GET.data_final %}
+                <!-- Relatório Financeiro -->
+            <div id="relatorio-financeiro" class="col-md-12 sidebar content-section" style="background-color: rgb(13, 12, 12);">
                 <h2>Relatório Financeiro</h2>
                 <hr>
+                <h4>Período: {{ request.GET.data_inicial }} a {{ request.GET.data_final }}</h4>
+                <hr>
                 <h4>Valor Total das Vendas: R$ {{ valor_total_vendas|floatformat:2 }}</h4>
-                <table class="table table-striped">
-                    <thead style="color: aliceblue">
-                        <tr style="text-align: center;">
-                            <th>Produto</th>
-                            <th>Quantidade Vendida</th>
-                            <th>Receita Total (R$)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for produto in produtos %}
-                        <tr style="text-align: center;">
-                            <td style="color: aliceblue">{{ produto.produto }}</td>
-                            <td style="color: aliceblue">{{ produto.quantidade_vendida }}</td>
-                            <td style="color: aliceblue">R$ {{ produto.receita_total|floatformat:2 }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    <table class="table table-striped">
+                        <thead style="color: aliceblue">
+                            <tr style="text-align: center;">
+                                <th>Produto</th>
+                                <th>Quantidade Vendida</th>
+                                <th>Receita Total (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for produto in produtos %}
+                            <tr style="text-align: center;">
+                                <td style="color: aliceblue">{{ produto.produto }}</td>
+                                <td style="color: aliceblue">{{ produto.quantidade_vendida }}</td>
+                                <td style="color: aliceblue">R$ {{ produto.receita_total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-            <div id="vendas-metodo" class="content-section" style="display: none;">
-                <h2>Venda por Método de Pagamento</h2>
-                <hr>
-                <table class="table table-striped">
-                    <thead style="color: aliceblue">
-                        <tr style="text-align: center;">
-                            <th>Método de Pagamento</th>
-                            <th>Total Vendido (R$)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for metodo in metodos_pagamento %}
-                        <tr style="text-align: center;">
-                            <td style="color: aliceblue">{{ metodo.metodo }}</td>
-                            <td style="color: aliceblue">R$ {{ metodo.total_vendas|floatformat:2 }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                <!-- Outras seções -->
+                <div id="vendas-metodo" class="content-section sidebar" style="background-color: rgb(13, 12, 12);">
+                    <h2>Venda por Método de Pagamento</h2>
+                    <hr>
+                    <table class="table table-striped">
+                        <thead style="color: aliceblue">
+                            <tr style="text-align: center;">
+                                <th>Método de Pagamento</th>
+                                <th>Total Vendido (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for metodo in metodos_pagamento %}
+                            <tr style="text-align: center;">
+                                <td style="color: aliceblue">{{ metodo.metodo }}</td>
+                                <td style="color: aliceblue">R$ {{ metodo.total_vendas|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-            <div id="vendas-usuario-metodo" class="content-section" style="display: none;">
-                <h2>Vendas por Usuário</h2>
-                <hr>
-                <table class="table table-striped">
-                    <thead style="color: aliceblue">
-                        <tr style="text-align: center;">
-                            <th>Usuário</th>
-                            <th>Total Vendido (R$)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for venda in vendas_por_usuario %}
-                        <tr style="text-align: center;">
-                            <td>
-                                <a style="color: aliceblue" href="#" onclick="mostrarModal('{{ venda.user__nome }}')">
-                                    {{ venda.user__nome }}
-                                </a>
-                            </td>
-                            <td style="color: aliceblue">R$ {{ venda.total_vendas|floatformat:2 }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                <div id="vendas-usuario-metodo" class="content-section sidebar" style="background-color: rgb(13, 12, 12);">
+                    <h2>Vendas por Usuário</h2>
+                    <hr>
+                    <table class="table table-striped">
+                        <thead style="color: aliceblue">
+                            <tr style="text-align: center;">
+                                <th>Usuário</th>
+                                <th>Total Vendido (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venda in vendas_por_usuario %}
+                            <tr style="text-align: center;">
+                                <td>
+                                    <a style="color: aliceblue" href="#" onclick="mostrarModal('{{ venda.user__nome }}')">
+                                        {{ venda.user__nome }}
+                                    </a>
+                                </td>
+                                <td style="color: aliceblue">R$ {{ venda.total_vendas|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-            <div id="quantidade-itens" class="content-section" style="display: none;">
-                <h2>Total de Itens Vendidos</h2>
-                <hr>
-                <table class="table table-striped">
-                    <thead style="color: aliceblue">
-                        <tr style="text-align: center;">
-                            <th>Produto</th>
-                            <th>Quantidade Vendida</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in itens_vendidos %}
-                        <tr style="text-align: center;">
-                            <td style="color: aliceblue">{{ item.produto }}</td>
-                            <td style="color: aliceblue">{{ item.quantidade_vendida }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                <div id="quantidade-itens" class="content-section sidebar" style="background-color: rgb(13, 12, 12);">
+                    <h2>Total de Itens Vendidos</h2>
+                    <hr>
+                    <table class="table table-striped">
+                        <thead style="color: aliceblue">
+                            <tr style="text-align: center;">
+                                <th>Produto</th>
+                                <th>Quantidade Vendida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens_vendidos %}
+                            <tr style="text-align: center;">
+                                <td style="color: aliceblue">{{ item.produto }}</td>
+                                <td style="color: aliceblue">{{ item.quantidade_vendida }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
-<div id="modal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span style="margin-left: 95%;" class="close" onclick="fecharModal()">&times;</span>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Método de Pagamento</th>
-                    <th>Total Vendido (R$)</th>
-                </tr>
-            </thead>
-            <tbody id="modal-content-body">
-            </tbody>
-        </table>
-    </div>
-</div>
 {% endblock conteudo %}
+
 
 {% block css %}
 <style>
@@ -143,15 +153,12 @@
         border-radius: 8px;
         background-color: #f9f9f9;
     }
-
     .content-section {
         display: none;
     }
-
     .content-section.active {
         display: block;
     }
-
     .modal {
         position: fixed;
         top: 0;
@@ -163,7 +170,6 @@
         justify-content: center;
         align-items: center;
     }
-
     .modal-content {
         background-color: white;
         padding: 20px;
@@ -171,7 +177,6 @@
         width: 60%;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
-
     .close {
         float: right;
         cursor: pointer;
@@ -181,37 +186,24 @@
 {% endblock css %}
 
 {% block js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 <script>
     function showSection(sectionId) {
-        document.querySelectorAll('.content-section').forEach(function (section) {
-            section.style.display = 'none';
-        });
+        document.querySelectorAll('.content-section').forEach(section => section.style.display = 'none');
         document.getElementById(sectionId).style.display = 'block';
     }
-
     function mostrarModal(username) {
-        fetch(`/vendas-usuario-detalhes/${username}/`)
-            .then(response => response.json())
-            .then(data => {
-                const modalContentBody = document.getElementById('modal-content-body');
-                modalContentBody.innerHTML = '';
-                data.vendas.forEach(venda => {
-                    const row = `<tr><td>${venda.metodo_pagamento}</td><td>R$ ${venda.total_vendido.toFixed(2)}</td></tr>`;
-                    modalContentBody.innerHTML += row;
-                });
-
-                document.getElementById('modal').style.display = 'flex';
-            })
-            .catch(error => {
-                console.error('Erro ao carregar dados do usuário:', error);
+        fetch(`/vendas-usuario-detalhes/${username}/`).then(response => response.json()).then(data => {
+            const modalContentBody = document.getElementById('modal-content-body');
+            modalContentBody.innerHTML = '';
+            data.vendas.forEach(venda => {
+                modalContentBody.innerHTML += `<tr><td>${venda.metodo_pagamento}</td><td>R$ ${venda.total_vendido.toFixed(2)}</td></tr>`;
             });
+            document.getElementById('modal').style.display = 'flex';
+        });
     }
-
     function fecharModal() {
         document.getElementById('modal').style.display = 'none';
     }
-
     showSection('relatorio-financeiro');
 </script>
 {% endblock js %}

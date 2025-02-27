@@ -2,7 +2,6 @@ from django.db import models
 from projeto.produto.models import Produto
 from projeto.user.models import User
 
-
 class Venda(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     data_venda = models.DateTimeField(auto_now_add=True)

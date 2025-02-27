@@ -3,6 +3,7 @@ from projeto.vendas.models import ItemVenda, Venda
 from django.db.models import Sum, F
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from datetime import datetime
 
 def index(request):
     produtos = ItemVenda.objects.values('produto__produto').annotate(total_vendido=Sum('quantidade')).order_by('-total_vendido')
@@ -31,7 +32,7 @@ def index(request):
 
 def list_vendas(request):
     vendas = Venda.objects.prefetch_related('itens').order_by('-id')
-    
+
     for venda in vendas:
         venda.total_calculado = sum(
             item.quantidade * item.preco_unitario for item in venda.itens.all()
@@ -42,7 +43,20 @@ def list_vendas(request):
 
 @login_required
 def financas(request):
-    produtos = ItemVenda.objects.values('produto__produto') \
+    data_selecionada = request.GET.get('data')
+    if data_selecionada:
+        try:
+            data_selecionada = datetime.strptime(data_selecionada, '%Y-%m-%d').date()
+        except ValueError:
+            data_selecionada = None
+    else:
+        data_selecionada = None
+
+    vendas = Venda.objects.all()
+    if data_selecionada:
+        vendas = vendas.filter(data_venda__date=data_selecionada)
+
+    produtos = ItemVenda.objects.filter(venda__in=vendas).values('produto__produto') \
         .annotate(
             total_vendido=Sum('quantidade'),
             receita_total=Sum(F('quantidade') * F('preco_unitario'))
@@ -50,11 +64,11 @@ def financas(request):
 
     valor_total_vendas = sum(produto['receita_total'] for produto in produtos)
 
-    metodos_pagamento = Venda.objects.values('forma_pagamento') \
+    metodos_pagamento = Venda.objects.filter(id__in=vendas).values('forma_pagamento') \
         .annotate(total_vendas=Sum('total')) \
         .order_by('-total_vendas')
 
-    vendas_por_usuario = Venda.objects.values('user__nome').annotate(
+    vendas_por_usuario = Venda.objects.filter(id__in=vendas).values('user__nome').annotate(
         total_vendas=Sum('total')
     ).order_by('-total_vendas')
 
@@ -86,7 +100,9 @@ def financas(request):
         'vendas_por_usuario': vendas_por_usuario,
         'itens_vendidos': itens_vendidos,
     }
+
     return render(request, 'financa.html', context)
+
 
 @login_required
 def vendas_usuario_detalhes(request, nome):
