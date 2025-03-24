@@ -1,6 +1,7 @@
 # Sistema de Vendas e Controle de Estoque
 
 Este é um sistema desenvolvido em Django para gerenciar vendas, controle de estoque, relatórios financeiros e cadastro de usuários. O projeto oferece funcionalidades como gestão de produtos, fornecedores, clientes e relatórios detalhados de vendas.
+Youtube: https://www.youtube.com/watch?v=gGqbNOzc48s&t=1s&pp=0gcJCXcA-SJGOe9V
 
 ## Download do projeto .zip
 
